@@ -13,6 +13,9 @@ using Microsoft.Extensions.Logging;
 using taskmanager_api.Models;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 namespace taskmanager_api
 {
     public class Startup
@@ -27,6 +30,21 @@ namespace taskmanager_api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // CONFIGURACIÓN DEL SERVICIO DE AUTENTICACIÓN JWT
+            services.AddAuthentication (JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer (options => {
+                    options.TokenValidationParameters = new TokenValidationParameters () {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = Configuration["JWT:Issuer"],
+                    ValidAudience = Configuration["JWT:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey (
+                    Encoding.UTF8.GetBytes (Configuration["JWT:ClaveSecreta"])
+                    )
+                    };
+            });
             services.AddAutoMapper(configuration =>{
                 configuration.CreateMap<UsersCreatedDTO, Users>();
                 configuration.CreateMap<UsersUpdatedDTO, Users>();
@@ -55,7 +73,10 @@ namespace taskmanager_api
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            // AÑADIMOS EL MIDDLEWARE DE AUTENTICACIÓN
+            // DE USUARIOS AL PIPELINE DE ASP.NET CORE
+            app.UseAuthentication();
+            app.UseAuthorization ();
 
             app.UseEndpoints(endpoints =>
             {
