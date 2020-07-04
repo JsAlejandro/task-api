@@ -24,7 +24,7 @@ namespace taskmanager_api
         {
             Configuration = configuration;
         }
-
+        readonly string MyAllowSpecificOrigins = "_myAppVue";
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -56,6 +56,14 @@ namespace taskmanager_api
                 configuration.CreateMap<AssignmentUpdatedDTO, Assignment>();
                 configuration.CreateMap<AssignmentCreatedDTO, Assignment>();
             } ,typeof(Startup));
+             services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                builder =>
+                {
+                    builder.WithOrigins("*");
+                });
+            });
             services.AddDbContext<TaskdbContext> (options => options.UseMySql (Configuration.GetConnectionString ("DefaultConnection")));
             services.AddControllers ().AddNewtonsoftJson (options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
             services.AddControllers();
@@ -72,7 +80,8 @@ namespace taskmanager_api
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            
+            app.UseCors(MyAllowSpecificOrigins);
             // AÑADIMOS EL MIDDLEWARE DE AUTENTICACIÓN
             // DE USUARIOS AL PIPELINE DE ASP.NET CORE
             app.UseAuthentication();
