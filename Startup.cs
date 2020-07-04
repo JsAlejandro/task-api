@@ -10,7 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-
+using taskmanager_api.Models;
+using Microsoft.EntityFrameworkCore;
 namespace taskmanager_api
 {
     public class Startup
@@ -25,6 +26,7 @@ namespace taskmanager_api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+             services.AddDbContext<TaskdbContext> (options => options.UseMySql (Configuration.GetConnectionString ("DefaultConnection")));
             services.AddControllers();
         }
 
