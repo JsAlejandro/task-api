@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+   db:
+     image: mysql:5.7
+     container_name: task-mysql
+     environment:
+       MYSQL_RANDOM_ROOT_PASSWORD: 1
+       MYSQL_DATABASE: taskdb
+       MYSQL_USER: userdb
+       MYSQL_PASSWORD: jafs1235A*
+     volumes:
+       - dbdata:/var/lib/mysql
+       - ./_MySQL_Init_Script:/docker-entrypoint-initdb.d
+     restart: always
+     networks:
+      - taskmanager-net
+ 
+   api:
+     depends_on:
+       - db
+     image: jesus1992/taskmanager-api
+     container_name: task-api
+     build:
+       context: .
+     ports:
+       - "8080:80"
+     networks:
+      - taskmanager-net
+ 
+volumes:
+    dbdata:
+networks:
+  taskmanager-net:
+    driver: bridge
