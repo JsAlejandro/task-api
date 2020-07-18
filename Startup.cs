@@ -50,11 +50,15 @@ namespace taskmanager_api
                 configuration.CreateMap<UsersUpdatedDTO, Users>();
                 configuration.CreateMap<Users, UsersShowDTO>();
                 configuration.CreateMap<CommentsCreatedDTO, Comments>();
-                configuration.CreateMap<Comments, CommentsShowDTO>();
+                configuration.CreateMap<Comments, CommentsShowDTO>().ReverseMap();
                 configuration.CreateMap<CommentsUpdatedDTO, Comments>();
                 configuration.CreateMap<Assignment, AssignmentShowDTO>();
                 configuration.CreateMap<AssignmentUpdatedDTO, Assignment>();
                 configuration.CreateMap<AssignmentCreatedDTO, Assignment>();
+
+                configuration.CreateMap<Comments, CommentsPopulateDTO>().ReverseMap();
+                configuration.CreateMap<Assignment, AssignmentPopulateDTO>().ReverseMap();
+    
             } ,typeof(Startup));
              services.AddCors(options =>
             {

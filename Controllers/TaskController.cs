@@ -85,5 +85,17 @@ namespace taskmanager_api.Controllers {
             return assignment;
         }
 
+         [HttpGet ("{_id}/comments")]
+        public ActionResult<Assignment> getCommentsTask (int _id) {
+            
+            Assignment assignment = this._context.Assignment.Include(element => element.Comments).FirstOrDefault (a => a.Id == _id);
+            if (assignment == null) {
+                return NotFound ();
+            } else {
+                var assignmentShow = this._mapper.Map<AssignmentPopulateDTO> (assignment);
+                return Ok (assignmentShow);
+            }
+        }
+
     }
 }
