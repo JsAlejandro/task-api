@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -73,6 +74,32 @@ namespace taskmanager_api.Controllers {
                 return Ok (new { updated = true, error = new { } });
             } catch (System.Exception e) {
                 return Ok (new { updated = true, error = new { ErrorData = e } });
+            }
+
+        }
+
+        [HttpPatch ("{_id}")]
+        public async Task<ActionResult> updatedPatch (int _id, [FromBody] JsonPatchDocument<Users> patchDocument) {
+            try {
+                if (patchDocument == null) {
+                    return BadRequest (new { title = "One or more validation errors occurred ", status = 400, errors = ModelState.Values.SelectMany (x => x.Errors) });
+                }
+                var user = await this._context.Users.FirstOrDefaultAsync (a => a.Id == _id);
+                if (user == null) {
+                    return NotFound ();
+                }
+
+                patchDocument.ApplyTo (user, ModelState);
+
+                var isValid = TryValidateModel (user);
+
+                if (!isValid) {
+                    return BadRequest (new { title = "One or more validation errors occurred ", status = 400, errors = ModelState.Values.SelectMany (x => x.Errors) });
+                }
+                await this._context.SaveChangesAsync ();
+                return Ok (new { updated = true, error = new { } });
+            } catch (System.Exception e) {
+                return Ok (new { updated = false, error = new { } });
             }
 
         }
