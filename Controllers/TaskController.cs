@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -73,6 +74,32 @@ namespace taskmanager_api.Controllers {
             }
         }
 
+        [HttpPatch ("{_id}")]
+        public async Task<ActionResult> updatedPatch (int _id, [FromBody] JsonPatchDocument<Assignment> patchDocument) {
+            try {
+                if (patchDocument == null) {
+                    return BadRequest (new { title = "One or more validation errors occurred ", status = 400, errors = ModelState.Values.SelectMany (x => x.Errors) });
+                }
+                var assignment = await this._context.Assignment.FirstOrDefaultAsync (a => a.Id == _id);
+                if (assignment == null) {
+                    return NotFound ();
+                }
+
+                patchDocument.ApplyTo (assignment, ModelState);
+
+                var isValid = TryValidateModel (assignment);
+
+                if (!isValid) {
+                    return BadRequest (new { title = "One or more validation errors occurred ", status = 400, errors = ModelState.Values.SelectMany (x => x.Errors) });
+                }
+                await this._context.SaveChangesAsync ();
+                return Ok (new { updated = true, error = new { } });
+            } catch (System.Exception e) {
+                return Ok (new { updated = false, error = new { } });
+            }
+
+        }
+
         [HttpDelete ("{_id}")]
         public ActionResult<Assignment> Delete (int _id) {
             var assignment = this._context.Assignment.FirstOrDefault (element => element.Id == _id);
@@ -85,10 +112,10 @@ namespace taskmanager_api.Controllers {
             return assignment;
         }
 
-         [HttpGet ("{_id}/comments")]
+        [HttpGet ("{_id}/comments")]
         public ActionResult<Assignment> getCommentsTask (int _id) {
-            
-            Assignment assignment = this._context.Assignment.Include(element => element.Comments).FirstOrDefault (a => a.Id == _id);
+
+            Assignment assignment = this._context.Assignment.Include (element => element.Comments).FirstOrDefault (a => a.Id == _id);
             if (assignment == null) {
                 return NotFound ();
             } else {
