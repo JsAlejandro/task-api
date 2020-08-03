@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using taskmanager_api.Models;
 using taskmanager_api.ModelsResponse;
+using taskmanager_api.Services;
+
 namespace taskmanager_api.Controllers {
     [ApiController]
     [Route ("/api/v1.0/[controller]")]
@@ -19,10 +21,13 @@ namespace taskmanager_api.Controllers {
         private readonly ILogger<UsersController> _logger;
         private readonly TaskdbContext _context;
         private readonly IMapper _mapper;
-        public UsersController (ILogger<UsersController> logger, TaskdbContext context, IMapper mapper) {
+
+        private readonly HashService _hashService;
+        public UsersController (ILogger<UsersController> logger, TaskdbContext context, IMapper mapper, HashService hashService) {
             this._logger = logger;
             this._context = context;
             this._mapper = mapper;
+            this._hashService = hashService;
 
         }
 
@@ -34,11 +39,11 @@ namespace taskmanager_api.Controllers {
             int count = await query.CountAsync ();
             return new UsersResponse {
                 Page = page,
-                    Pages = (int) Math.Ceiling (count / (float) limit),
-                    Count = count,
-                    Next = $"/api/v1.0/users?limit={limit}&page={page + 1}",
-                    Previous = $"/api/v1.0/users?limit={limit}&page={page -1}",
-                    Docs = usersShow
+                Pages = (int) Math.Ceiling (count / (float) limit),
+                Count = count,
+                Next = $"/api/v1.0/users?limit={limit}&page={page + 1}",
+                Previous = $"/api/v1.0/users?limit={limit}&page={page -1}",
+                Docs = usersShow
             };
         }
 
@@ -58,6 +63,9 @@ namespace taskmanager_api.Controllers {
         [HttpPost]
         public ActionResult Create ([FromBody] UsersCreatedDTO userCreated) {
             Users user = this._mapper.Map<Users> (userCreated);
+            HashResult pas = this._hashService.Hash (user.Password);
+            user.Password = pas.Hash;
+            user.Salt = pas.Salt;
             this._context.Add (user);
             this._context.SaveChanges ();
             UsersShowDTO usersShow = this._mapper.Map<UsersShowDTO> (user);

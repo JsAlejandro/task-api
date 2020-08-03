@@ -115,13 +115,15 @@ namespace taskmanager_api.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("varchar(15) CHARACTER SET utf8mb4")
-                        .HasMaxLength(15);
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("varchar(5) CHARACTER SET utf8mb4")
                         .HasMaxLength(5);
+
+                    b.Property<byte[]>("Salt")
+                        .HasColumnType("longblob");
 
                     b.Property<bool>("SoftDeleted")
                         .HasColumnType("tinyint(1)");
