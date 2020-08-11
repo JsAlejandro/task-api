@@ -21,6 +21,10 @@ namespace taskmanager_api.Models {
 
         [Required]
         public int UserId { get; set; }
+
+
+        [Required]
+        public int AssigneeId {get; set;}
         
     }
 }

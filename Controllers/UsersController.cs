@@ -39,11 +39,11 @@ namespace taskmanager_api.Controllers {
             int count = await query.CountAsync ();
             return new UsersResponse {
                 Page = page,
-                Pages = (int) Math.Ceiling (count / (float) limit),
-                Count = count,
-                Next = $"/api/v1.0/users?limit={limit}&page={page + 1}",
-                Previous = $"/api/v1.0/users?limit={limit}&page={page -1}",
-                Docs = usersShow
+                    Pages = (int) Math.Ceiling (count / (float) limit),
+                    Count = count,
+                    Next = $"/api/v1.0/users?limit={limit}&page={page + 1}",
+                    Previous = $"/api/v1.0/users?limit={limit}&page={page -1}",
+                    Docs = usersShow
             };
         }
 
@@ -62,14 +62,19 @@ namespace taskmanager_api.Controllers {
 
         [HttpPost]
         public ActionResult Create ([FromBody] UsersCreatedDTO userCreated) {
-            Users user = this._mapper.Map<Users> (userCreated);
-            HashResult pas = this._hashService.Hash (user.Password);
-            user.Password = pas.Hash;
-            user.Salt = pas.Salt;
-            this._context.Add (user);
-            this._context.SaveChanges ();
-            UsersShowDTO usersShow = this._mapper.Map<UsersShowDTO> (user);
-            return new CreatedAtRouteResult ("getUser", new { _id = usersShow.Id }, usersShow);
+            try {
+                Users user = this._mapper.Map<Users> (userCreated);
+                HashResult pas = this._hashService.Hash (user.Password);
+                user.Password = pas.Hash;
+                user.Salt = pas.Salt;
+                this._context.Add (user);
+                this._context.SaveChanges ();
+                UsersShowDTO usersShow = this._mapper.Map<UsersShowDTO> (user);
+                return new CreatedAtRouteResult ("getUser", new { _id = usersShow.Id }, usersShow);
+            } catch (System.Exception e) {
+
+                return Ok (new { create = false, users = new { }, error = new { ErrorData = e } });
+            }
         }
 
         [HttpPut ("{_id}")]

@@ -55,11 +55,15 @@ namespace taskmanager_api.Controllers {
 
         [HttpPost]
         public ActionResult Create ([FromBody] CommentsCreatedDTO commentsC) {
-            Comments comment = this._mapper.Map<Comments> (commentsC);
-            this._context.Add (comment);
-            this._context.SaveChanges ();
-            CommentsShowDTO commentShow = this._mapper.Map<CommentsShowDTO> (comment);
-            return new CreatedAtRouteResult ("getComments", new { _id = commentShow.Id }, commentShow);
+            try {
+                Comments comment = this._mapper.Map<Comments> (commentsC);
+                this._context.Add (comment);
+                this._context.SaveChanges ();
+                CommentsShowDTO commentShow = this._mapper.Map<CommentsShowDTO> (comment);
+                return new CreatedAtRouteResult ("getComments", new { _id = commentShow.Id }, commentShow);
+            } catch (System.Exception e) {
+                return Ok (new { create = false, comment = new { }, error = new { ErrorData = e }});
+            }
         }
 
         [HttpPut ("{_id}")]

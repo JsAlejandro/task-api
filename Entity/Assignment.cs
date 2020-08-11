@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using taskmanager_api.Attribute;
+using System.ComponentModel.DataAnnotations.Schema;
 namespace taskmanager_api.Models {
     public partial class Assignment:BaseEntity {
     
@@ -22,6 +23,12 @@ namespace taskmanager_api.Models {
 
         [Required]
         public int UserId { get; set; }
+
+        [Required]
+        public int AssigneeId {get; set;}
+
+        [NotMapped]
+        public virtual Users Assignee { get; set; } 
         public virtual Users User { get; set; }
         public virtual ICollection<Comments> Comments { get; set; }
     }
