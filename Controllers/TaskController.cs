@@ -54,11 +54,15 @@ namespace taskmanager_api.Controllers {
 
         [HttpPost]
         public ActionResult Create ([FromBody] AssignmentCreatedDTO assignmentCreated) {
-            Assignment assignment = this._mapper.Map<Assignment> (assignmentCreated);
-            this._context.Add (assignment);
-            this._context.SaveChanges ();
-            AssignmentShowDTO assignmentsShow = this._mapper.Map<AssignmentShowDTO> (assignment);
-            return new CreatedAtRouteResult ("getAssignment", new { _id = assignmentsShow.Id }, assignmentsShow);
+            try {
+                Assignment assignment = this._mapper.Map<Assignment> (assignmentCreated);
+                this._context.Add (assignment);
+                this._context.SaveChanges ();
+                AssignmentShowDTO assignmentsShow = this._mapper.Map<AssignmentShowDTO> (assignment);
+                return new CreatedAtRouteResult ("getAssignment", new { _id = assignmentsShow.Id }, assignmentsShow);
+            } catch (System.Exception e) {
+                return Ok(new { create = false, assignment = new {}, error = new { ErrorData = e } });
+            }
         }
 
         [HttpPut ("{_id}")]
