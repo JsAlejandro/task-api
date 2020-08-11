@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using taskmanager_api.Models;
 
 namespace taskmanager_api.Migrations
 {
     [DbContext(typeof(TaskdbContext))]
-    partial class TaskdbContextModelSnapshot : ModelSnapshot
+    [Migration("20200811004439_addAssigneeId")]
+    partial class addAssigneeId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
